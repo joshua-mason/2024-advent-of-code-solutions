@@ -1,0 +1,12 @@
+{
+  "name": "2024-advent-of-code-solutions",
+  "description": "Solutions for the [2024 Advent of Code](https://adventofcode.com/2024) challenges",
+  "author": "Joshua Mason",
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^22.10.1",
+    "ts-node": "^10.9.2",
+    "tsc": "^2.0.4",
+    "typescript": "^5.7.2"
+  }
+}
