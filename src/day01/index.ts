@@ -11,6 +11,11 @@ interface LocationIDs {
     secondList: number[];
 }
 
+interface RepeatFrequency {
+    value: number;
+    occurrences: number;
+}
+
 async function parseData(rawData: string): Promise<LocationIDs> {
     const lines = rawData.split("\n");
     const firstList: number[] = [];
@@ -46,12 +51,39 @@ function sumOfDiffs(data: LocationIDs): number {
     return sum
 }
 
+
+function getRepeatedValues(data: LocationIDs): RepeatFrequency[] {
+    const repeatedValues: RepeatFrequency[] = []
+    for (const firstListValue of data.firstList) {
+        const occurrences = data.secondList.filter(secondListValue => secondListValue === firstListValue).length
+        repeatedValues.push({
+            value: firstListValue,
+            occurrences: occurrences
+        })
+    }
+    return repeatedValues
+}
+
+function calculateSimilarityScore(repeatFrequencies: RepeatFrequency[]) {
+    let score = 0;
+    for (const frequency of repeatFrequencies) {
+        score += frequency.occurrences * frequency.value;
+    }
+    return score
+}
+
 async function main() {
     const rawData = await loadData();
     const data = await parseData(rawData);
     const sortedData = await sortData(data)
     const totalDistance = sumOfDiffs(sortedData)
-    console.log(totalDistance)
+    console.log("Sum of sorted differences:", totalDistance)
+
+    const repeatFrequencies = getRepeatedValues(data);
+    const similarityScore = calculateSimilarityScore(repeatFrequencies);
+
+    console.log("Similarity score: ", similarityScore)
+
 }
 
 main()
