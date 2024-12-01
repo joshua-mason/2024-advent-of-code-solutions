@@ -52,7 +52,7 @@ function sumOfDiffs(data: LocationIDs): number {
 }
 
 
-function getRepeatedValues(data: LocationIDs): RepeatFrequency[] {
+function getRepeatFrequencies(data: LocationIDs): RepeatFrequency[] {
     const repeatedValues: RepeatFrequency[] = []
     for (const firstListValue of data.firstList) {
         const occurrences = data.secondList.filter(secondListValue => secondListValue === firstListValue).length
@@ -75,15 +75,13 @@ function calculateSimilarityScore(repeatFrequencies: RepeatFrequency[]) {
 async function main() {
     const rawData = await loadData();
     const data = await parseData(rawData);
-    const sortedData = await sortData(data)
+    const sortedData = sortData(data)
     const totalDistance = sumOfDiffs(sortedData)
     console.log("Sum of sorted differences:", totalDistance)
 
-    const repeatFrequencies = getRepeatedValues(data);
+    const repeatFrequencies = getRepeatFrequencies(data);
     const similarityScore = calculateSimilarityScore(repeatFrequencies);
-
-    console.log("Similarity score: ", similarityScore)
-
+    console.log("Similarity score: ", similarityScore);
 }
 
 main()
