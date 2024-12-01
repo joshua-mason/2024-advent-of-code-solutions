@@ -11,30 +11,33 @@ pub fn run() {
 
     println!("Sum of differences: {}", sum_of_differences);
 
-    let frequency_map = make_frequency_map(second_list);
+    let frequency_map = make_frequency_map(&second_list);
 
-    let similarity_score = calculate_similarity_score(first_list, frequency_map);
+    let similarity_score = calculate_similarity_score(&first_list, frequency_map);
 
     println!("Similarity score: {}", similarity_score);
 }
 
-fn calculate_similarity_score(first_list: Vec<i32>, frequency_map: HashMap<i32, usize>) -> i32 {
+fn calculate_similarity_score(first_list: &[i32], frequency_map: HashMap<i32, usize>) -> i32 {
     first_list.iter().fold(0, |acc, &n1| {
         acc + n1 * (*frequency_map.get(&n1).unwrap_or(&0) as i32)
     })
 }
 
-fn make_frequency_map(second_list: Vec<i32>) -> HashMap<i32, usize> {
+fn make_frequency_map(second_list: &[i32]) -> HashMap<i32, usize> {
     let mut frequency_map: HashMap<i32, usize> = HashMap::new();
 
     for n1 in second_list {
-        frequency_map.entry(n1).and_modify(|e| *e += 1).or_insert(1);
+        frequency_map
+            .entry(*n1)
+            .and_modify(|e| *e += 1)
+            .or_insert(1);
     }
 
     frequency_map
 }
 
-fn calculate_sum_of_differences(first_list: &Vec<i32>, second_list: &Vec<i32>) -> i32 {
+fn calculate_sum_of_differences(first_list: &[i32], second_list: &[i32]) -> i32 {
     zip(first_list, second_list).fold(0, |acc, (a, b)| acc + (a - b).abs())
 }
 
