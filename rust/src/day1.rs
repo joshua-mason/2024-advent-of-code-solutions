@@ -11,20 +11,27 @@ pub fn run() {
 
     println!("Sum of differences: {}", sum_of_differences);
 
-    let mut frequency_map: HashMap<i32, usize> = HashMap::new();
+    let frequency_map = make_frequency_map(second_list);
 
-    second_list.iter().for_each(|n1| {
-        frequency_map
-            .entry(*n1)
-            .and_modify(|e| *e += 1)
-            .or_insert(1);
-    });
-
-    let similarity_score = first_list.iter().fold(0, |acc, &n1| {
-        acc + n1 * (*frequency_map.get(&n1).unwrap_or(&0) as i32)
-    });
+    let similarity_score = calculate_similarity_score(first_list, frequency_map);
 
     println!("Similarity score: {}", similarity_score);
+}
+
+fn calculate_similarity_score(first_list: Vec<i32>, frequency_map: HashMap<i32, usize>) -> i32 {
+    first_list.iter().fold(0, |acc, &n1| {
+        acc + n1 * (*frequency_map.get(&n1).unwrap_or(&0) as i32)
+    })
+}
+
+fn make_frequency_map(second_list: Vec<i32>) -> HashMap<i32, usize> {
+    let mut frequency_map: HashMap<i32, usize> = HashMap::new();
+
+    for n1 in second_list {
+        frequency_map.entry(n1).and_modify(|e| *e += 1).or_insert(1);
+    }
+
+    frequency_map
 }
 
 fn calculate_sum_of_differences(first_list: &Vec<i32>, second_list: &Vec<i32>) -> i32 {
@@ -37,7 +44,7 @@ fn sort_lists(first_list: &mut Vec<i32>, second_list: &mut Vec<i32>) {
 }
 
 fn read_input_file() -> String {
-    std::fs::read_to_string("./inputs/day1.txt").unwrap()
+    std::fs::read_to_string("./inputs/day1.txt").expect("Failed to read input file 'day1.txt'")
 }
 
 fn read_lines_to_integer_lists(data: &str) -> (Vec<i32>, Vec<i32>) {
