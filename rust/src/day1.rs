@@ -11,15 +11,24 @@ pub fn run() {
 
     println!("Sum of differences: {}", sum_of_differences);
 
-    // let mut repeitition_count: HashMap<i32, i32,>
     let mut frequency_map: HashMap<i32, usize> = HashMap::new();
 
-    first_list.iter().for_each(|n1| {
+    second_list.iter().for_each(|n1| {
         frequency_map
             .entry(*n1)
             .and_modify(|e| *e += 1)
             .or_insert(1);
     });
+
+    let mut similarity_score = 0;
+
+    for n1 in first_list {
+        if let Some(frequency) = frequency_map.get(&n1) {
+            similarity_score += n1 * (*frequency as i32)
+        }
+    }
+
+    println!("Similarity score: {}", similarity_score);
 }
 
 fn calculate_sum_of_differences(first_list: &Vec<i32>, second_list: &Vec<i32>) -> i32 {
