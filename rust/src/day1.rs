@@ -1,27 +1,29 @@
-use std::iter::zip;
+use std::{collections::HashMap, iter::zip};
 
 pub fn run() {
     let data = read_input_file();
-
-    println!("Day 1 solution not implemented yet!");
 
     let (mut first_list, mut second_list) = read_lines_to_integer_lists(&data);
 
     sort_lists(&mut first_list, &mut second_list);
 
-    let sum_of_differences = calculate_sum_of_differences(first_list, second_list);
+    let sum_of_differences = calculate_sum_of_differences(&first_list, &second_list);
 
     println!("Sum of differences: {}", sum_of_differences);
+
+    // let mut repeitition_count: HashMap<i32, i32,>
+    let mut frequency_map: HashMap<i32, usize> = HashMap::new();
+
+    first_list.iter().for_each(|n1| {
+        frequency_map
+            .entry(*n1)
+            .and_modify(|e| *e += 1)
+            .or_insert(1);
+    });
 }
 
-fn calculate_sum_of_differences(first_list: Vec<i32>, second_list: Vec<i32>) -> i32 {
-    let zipped_lists = zip(first_list, second_list);
-    let mut diff = 0;
-
-    for pair in zipped_lists {
-        diff = diff + (pair.0 - pair.1).abs();
-    }
-    diff
+fn calculate_sum_of_differences(first_list: &Vec<i32>, second_list: &Vec<i32>) -> i32 {
+    zip(first_list, second_list).fold(0, |acc, (a, b)| acc + (a - b).abs())
 }
 
 fn sort_lists(first_list: &mut Vec<i32>, second_list: &mut Vec<i32>) {
@@ -46,10 +48,10 @@ fn read_lines_to_integer_lists(data: &str) -> (Vec<i32>, Vec<i32>) {
                 first_list.push(num1);
                 second_list.push(num2);
             } else {
-                println!("Failed to parse numbers on line: {}", line)
+                eprintln!("Failed to parse numbers on line: {}", line)
             }
         } else {
-            println!("Malformed line: {}", line)
+            eprintln!("Malformed line: {}", line)
         }
     }
     (first_list, second_list)
