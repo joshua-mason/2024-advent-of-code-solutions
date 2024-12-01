@@ -29,14 +29,14 @@ async function parseData(rawData: string): Promise<LocationIDs> {
 
   return {
     firstList,
-    secondList
+    secondList,
   };
 }
 
 function sortData(data: LocationIDs): LocationIDs {
   return {
     firstList: [...data.firstList].sort(),
-    secondList: [...data.secondList].sort()
+    secondList: [...data.secondList].sort(),
   };
 }
 
@@ -55,11 +55,11 @@ function getRepeatFrequencies(data: LocationIDs): RepeatFrequency[] {
   const repeatedValues: RepeatFrequency[] = [];
   for (const firstListValue of data.firstList) {
     const occurrences = data.secondList.filter(
-      (secondListValue) => secondListValue === firstListValue
+      (secondListValue) => secondListValue === firstListValue,
     ).length;
     repeatedValues.push({
       value: firstListValue,
-      occurrences: occurrences
+      occurrences: occurrences,
     });
   }
   return repeatedValues;
