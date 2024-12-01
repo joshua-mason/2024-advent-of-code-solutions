@@ -1,12 +1,16 @@
 # 2024 Advent of Code Solutions
 
-This repository contains my solutions for the [2024 Advent of Code](https://adventofcode.com/2024) challenges, implemented in TypeScript.
+This repository contains my solutions for the [2024 Advent of Code](https://adventofcode.com/2024) challenges, implemented in TypeScript and Rust.
 
 ## Structure
 
-Each day's solution is contained within its own directory under the `src` folder. For example:
+Each day's solution is contained within its own directory under the respective language folders:
 ```
-src/
+ts/
+    day01/
+    day02/
+    ...
+rust/
     day01/
     day02/
     ...
@@ -14,18 +18,32 @@ src/
 
 ## Running the Solutions
 
-To run a specific day's solution, navigate to the corresponding directory and execute the TypeScript file using `ts-node`:
+### TypeScript Solutions
+To run a specific day's TypeScript solution:
 
 ```bash
-cd src/day01
+cd ts/day01
 ts-node index.ts
+```
+
+### Rust Solutions
+To run a Rust solutions:
+
+```bash
+cd rust
+cargo run
 ```
 
 ## Prerequisites
 
+For TypeScript:
 - [Node.js](https://nodejs.org/)
 - [TypeScript](https://www.typescriptlang.org/)
 - [ts-node](https://github.com/TypeStrong/ts-node)
+
+For Rust:
+- [Rust](https://www.rust-lang.org/)
+- [Cargo](https://doc.rust-lang.org/cargo/) (comes with Rust)
 
 ## Installation
 
@@ -33,11 +51,12 @@ ts-node index.ts
      ```bash
      git clone https://github.com/yourusername/2024-advent-of-code-solutions.git
      ```
-2. Install the dependencies:
+2. Install TypeScript dependencies:
      ```bash
-     cd 2024-advent-of-code-solutions
+     cd 2024-advent-of-code-solutions/ts
      yarn
      ```
+3. For Rust solutions, no additional installation is needed beyond having Rust installed.
 
 ## License
 
