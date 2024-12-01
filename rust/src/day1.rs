@@ -1,11 +1,32 @@
+use std::iter::zip;
+
 pub fn run() {
     let data = read_input_file();
 
     println!("Day 1 solution not implemented yet!");
 
-    let (first_list, second_list) = read_lines_to_integer_lists(&data);
-    println!("{:?}", first_list);
-    println!("{:?}", second_list);
+    let (mut first_list, mut second_list) = read_lines_to_integer_lists(&data);
+
+    sort_lists(&mut first_list, &mut second_list);
+
+    let sum_of_differences = calculate_sum_of_differences(first_list, second_list);
+
+    println!("Sum of differences: {}", sum_of_differences);
+}
+
+fn calculate_sum_of_differences(first_list: Vec<i32>, second_list: Vec<i32>) -> i32 {
+    let zipped_lists = zip(first_list, second_list);
+    let mut diff = 0;
+
+    for pair in zipped_lists {
+        diff = diff + (pair.0 - pair.1).abs();
+    }
+    diff
+}
+
+fn sort_lists(first_list: &mut Vec<i32>, second_list: &mut Vec<i32>) {
+    first_list.sort();
+    second_list.sort();
 }
 
 fn read_input_file() -> String {
