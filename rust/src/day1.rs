@@ -20,12 +20,8 @@ pub fn run() {
             .or_insert(1);
     });
 
-    let similarity_score = first_list.iter().fold(0, |acc, n1| {
-        if let Some(occurrences) = frequency_map.get(n1) {
-            acc + n1 * (*occurrences as i32)
-        } else {
-            acc
-        }
+    let similarity_score = first_list.iter().fold(0, |acc, &n1| {
+        acc + n1 * (*frequency_map.get(&n1).unwrap_or(&0) as i32)
     });
 
     println!("Similarity score: {}", similarity_score);
