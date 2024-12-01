@@ -1,15 +1,20 @@
 pub fn run() {
-    let data = std::fs::read_to_string("./inputs/day1.txt").unwrap();
+    let data = read_input_file();
 
     println!("Day 1 solution not implemented yet!");
 
-    let lines = data.split("\n");
-    let (first_list, second_list) = read_lines_to_integer_lists(lines);
+    let (first_list, second_list) = read_lines_to_integer_lists(data);
     println!("{:?}", first_list);
     println!("{:?}", second_list);
 }
 
-fn read_lines_to_integer_lists(lines: std::str::Split<'_, &str>) -> (Vec<i32>, Vec<i32>) {
+fn read_input_file() -> String {
+    let data = std::fs::read_to_string("./inputs/day1.txt").unwrap();
+    data
+}
+
+fn read_lines_to_integer_lists(data: String) -> (Vec<i32>, Vec<i32>) {
+    let lines = data.split("\n");
     let mut first_list: Vec<i32> = vec![];
     let mut second_list: Vec<i32> = vec![];
 
