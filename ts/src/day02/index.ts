@@ -15,33 +15,67 @@ async function main() {
   const safeReportsCount = validatedReports.filter((r) => r.safe).length;
   // console.log(validatedReports);
 
-  const unsafeReports = validatedReports.filter((r) => !r.safe);
-  const unsafeReportsWithRemovedLevel = unsafeReports.map((r, index) => {
-    const report = reports[r.reportIndex];
-    let newReport: number[];
-    if (r.errorIndex === 0) {
-      newReport = report.slice(1);
-    } else if (r.errorIndex === report.length) {
-      newReport = report.slice(0, 5);
-    } else {
-      newReport = report
-        .slice(0, r.errorIndex)
-        .concat(report.slice(r.errorIndex + 1));
+  const unsafeReportData = validatedReports.filter((r) => !r.safe);
+
+  const safeOnSecondCheck = [];
+  for (const reportData of unsafeReportData) {
+    const index = 0;
+    reportData.errorIndexes.filter((_, i) => i !== index);
+    const originalReport = reports[reportData.reportIndex];
+    for (let index = 0; index < originalReport.length; index++) {
+      const reportWithoutErrorIndex = [...originalReport].filter(
+        (_, i) => i !== index,
+      );
+      const validatedReport = isReportSafe(
+        reportWithoutErrorIndex,
+        reportData.reportIndex,
+      );
+      if (validatedReport.safe) {
+        safeOnSecondCheck.push(reportData.reportIndex);
+        break;
+      }
     }
-    console.log({ r, report, newReport });
-    return newReport;
-  });
+    // for (const errorIndex of reportData.errorIndexes) {
+    //   const reportWithoutErrorIndex = [...originalReport].filter(
+    //     (_, i) => i !== errorIndex,
+    //   );
+    //   const validatedReport = isReportSafe(
+    //     reportWithoutErrorIndex,
+    //     reportData.reportIndex,
+    //   );
+    //   if (validatedReport.safe) {
+    //     safeOnSecondCheck.push(reportData.reportIndex);
+    //     break;
+    //   }
+    // }
+  }
+
+  // const unsafeReportsWithRemovedLevel = unsafeReports.map((r, index) => {
+  //   const report = reports[r.reportIndex];
+  //   let newReport: number[];
+  //   if (r.errorIndex === 0) {
+  //     newReport = report.slice(1);
+  //   } else if (r.errorIndex === report.length) {
+  //     newReport = report.slice(0, 5);
+  //   } else {
+  //     newReport = report
+  //       .slice(0, r.errorIndex)
+  //       .concat(report.slice(r.errorIndex + 1));
+  //   }
+  //   console.log({ r, report, newReport });
+  //   return newReport;
+  // });
 
   // console.log(unsafeReportsWithRemovedLevel);
 
-  const validatedSecondRoundReports =
-    unsafeReportsWithRemovedLevel.map(isReportSafe);
-  const safeSecondRoundReportsCount = validatedSecondRoundReports.filter(
-    (r) => r.safe,
-  ).length;
+  // const validatedSecondRoundReports =
+  //   unsafeReportsWithRemovedLevel.map(isReportSafe);
+  // const safeSecondRoundReportsCount = validatedSecondRoundReports.filter(
+  //   (r) => r.safe,
+  // ).length;
   console.log(`First round safe: ${safeReportsCount}
-Second round safe: ${safeSecondRoundReportsCount}
-Total: ${safeReportsCount + safeSecondRoundReportsCount}`);
+Second round safe: ${safeOnSecondCheck.length}
+Total: ${safeReportsCount + safeOnSecondCheck.length}`);
 }
 
 main();
@@ -72,38 +106,54 @@ function isReportSafe(
   reportIndex: number,
 ):
   | { safe: true; reportIndex: number }
-  | { safe: false; errorIndex: number; reportIndex: number } {
+  | { safe: false; errorIndexes: number[]; reportIndex: number } {
   let lastDiff = 0;
-  // console.log('\n\n', { report });
+  const errorIndexes = [];
+  let safe = true;
+
   for (let index = 0; index < report.length; index++) {
     const prevElement = report.at(index - 1);
     const element = report[index];
 
     if (index === 0) continue;
     if (!prevElement) continue;
+    const diff = element - prevElement;
 
     // console.log({ prevElement, element });
     if (prevElement === element) {
-      return { safe: false, errorIndex: index, reportIndex };
+      safe = false;
+      errorIndexes.push(index);
+      lastDiff = diff;
     }
 
-    const diff = element - prevElement;
     const isIncrement = diff > 0;
     const lastDiffWasIncrement = lastDiff > 0;
     // console.log(isIncrement, lastDiffWasIncrement);
     if (index > 1 && isIncrement !== lastDiffWasIncrement) {
-      return { safe: false, errorIndex: index, reportIndex };
+      safe = false;
+      errorIndexes.push(index);
+      lastDiff = diff;
     }
 
     const absDiff = Math.abs(diff);
     // console.log(absDiff);
     if (absDiff > 3) {
-      return { safe: false, errorIndex: index, reportIndex };
+      safe = false;
+      errorIndexes.push(index);
+      lastDiff = diff;
     }
 
     lastDiff = diff;
   }
-  return { safe: true, reportIndex };
+  if (safe) {
+    return { safe: true, reportIndex };
+  } else {
+    return {
+      errorIndexes,
+      reportIndex,
+      safe,
+    };
+  }
 }
 
 // function isReportSafeWithDampener(report: Report) {
