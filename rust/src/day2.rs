@@ -1,5 +1,3 @@
-use std::{clone, collections::btree_map::Range, result};
-
 pub fn run() {
     let input_file = read_input_file();
     let parsed_data = parse_data(&input_file);
@@ -44,7 +42,7 @@ fn is_safe(report: &[i32]) -> bool {
             let new_trending_up = diff > 0;
 
             if let Some(trending_up) = trending_up {
-                if (trending_up != new_trending_up) {
+                if trending_up != new_trending_up {
                     safe = false
                 }
             }
