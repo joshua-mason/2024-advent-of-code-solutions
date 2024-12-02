@@ -10,37 +10,36 @@ async function main() {
   const rawData = await loadData();
   const reports = await parseData(rawData);
   const validatedReports = reports.map(isReportSafe);
-  const safeReportsCount = validatedReports.filter((r) => r.safe).length;
+  const safeOnSecondCheck = validatedReports
+    .filter((r) => !r.safe)
+    .filter(validateWithProblemDampener);
 
-  const unsafeValidatedReports = validatedReports.filter((r) => !r.safe);
+  const safeOnFirstCheckCount = validatedReports.filter((r) => r.safe).length;
+  const safeOnSecondCheckCount = safeOnSecondCheck.length;
 
-  const safeOnSecondCheck = [];
-  for (const reportData of unsafeValidatedReports) {
-    const index = 0;
-    reportData.errorIndexes.filter((_, i) => i !== index);
-    const originalReport = reports[reportData.reportIndex];
-    for (let index = 0; index < originalReport.length; index++) {
-      const reportWithoutErrorIndex = [...originalReport].filter(
-        (_, i) => i !== index,
-      );
-      const validatedReport = isReportSafe(
-        reportWithoutErrorIndex,
-        reportData.reportIndex,
-      );
-      if (validatedReport.safe) {
-        safeOnSecondCheck.push(reportData.reportIndex);
-        break;
-      }
-    }
-  }
-
-  console.log(`First round safe: ${safeReportsCount}
-Second round safe: ${safeOnSecondCheck.length}
-Total: ${safeReportsCount + safeOnSecondCheck.length}`);
+  console.log(`First round safe: ${safeOnFirstCheckCount}
+Second round safe: ${safeOnSecondCheckCount}
+Total: ${safeOnFirstCheckCount + safeOnSecondCheckCount}`);
 }
 
 main();
 
+function validateWithProblemDampener(reportData: {
+  safe: false;
+  report: number[];
+}) {
+  const originalReport = reportData.report;
+  for (let index = 0; index < originalReport.length; index++) {
+    const reportWithoutErrorIndex = [...originalReport].filter(
+      (_, i) => i !== index,
+    );
+    const validatedReport = isReportSafe(reportWithoutErrorIndex);
+    if (validatedReport.safe) {
+      return true;
+    }
+  }
+  return false;
+}
 async function loadData() {
   const file = fs.readFileSync(path.join(__dirname + '/data.txt'), undefined);
   return file.toString();
@@ -61,10 +60,7 @@ async function parseData(rawData: string): Promise<Reports> {
 
 function isReportSafe(
   report: Report,
-  reportIndex: number,
-):
-  | { safe: true; reportIndex: number }
-  | { safe: false; errorIndexes: number[]; reportIndex: number } {
+): { safe: true } | { safe: false; report: number[] } {
   let lastDiff = 0;
   const errorIndexes = [];
   let safe = true;
@@ -73,40 +69,31 @@ function isReportSafe(
     const prevElement = report.at(index - 1);
     const element = report[index];
 
-    if (index === 0) continue;
-    if (!prevElement) continue;
+    if (index === 0 || !prevElement) continue;
+
     const diff = element - prevElement;
 
     if (prevElement === element) {
-      safe = false;
-      errorIndexes.push(index);
-      lastDiff = diff;
+      return { safe: false, report };
     }
 
     const isIncrement = diff > 0;
     const lastDiffWasIncrement = lastDiff > 0;
     if (index > 1 && isIncrement !== lastDiffWasIncrement) {
-      safe = false;
-      errorIndexes.push(index);
-      lastDiff = diff;
+      return { safe: false, report };
     }
 
     const absDiff = Math.abs(diff);
     if (absDiff > 3) {
-      safe = false;
-      errorIndexes.push(index);
-      lastDiff = diff;
+      return { safe: false, report };
     }
 
     lastDiff = diff;
   }
-  if (safe) {
-    return { safe: true, reportIndex };
-  } else {
-    return {
-      errorIndexes,
-      reportIndex,
-      safe,
-    };
-  }
+  return safe
+    ? { safe }
+    : {
+        safe,
+        report,
+      };
 }
