@@ -11,9 +11,10 @@ ts/
     day02/
     ...
 rust/
-    day01/
-    day02/
-    ...
+    src/
+        day01.rs
+        day02.rs
+        ...
 ```
 
 ## Running the Solutions
