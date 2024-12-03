@@ -7,9 +7,10 @@ This repository contains my solutions for the [2024 Advent of Code](https://adve
 Each day's solution is contained within its own directory under the respective language folders:
 ```
 ts/
-    day01/
-    day02/
-    ...
+    src/
+        day01/
+        day02/
+        ...
 rust/
     src/
         day01.rs
