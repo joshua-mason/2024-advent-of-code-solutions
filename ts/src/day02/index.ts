@@ -1,13 +1,10 @@
-// note: more than 592, less than ~660
+import { loadData } from '../utils/loadData';
 
-import * as fs from 'fs';
-import * as path from 'path';
+type ReportData = number[];
+type Reports = ReportData[];
 
-type Report = number[];
-type Reports = Report[];
-
-async function main() {
-  const rawData = await loadData();
+async function day2() {
+  const rawData = await loadData('/data.txt');
   const reports = await parseData(rawData);
   const validatedReports = reports.map(isReportSafe);
   const safeOnSecondCheck = validatedReports
@@ -22,7 +19,7 @@ Second round safe: ${safeOnSecondCheckCount}
 Total: ${safeOnFirstCheckCount + safeOnSecondCheckCount}`);
 }
 
-main();
+day2();
 
 function validateWithProblemDampener(reportData: {
   safe: false;
@@ -40,10 +37,6 @@ function validateWithProblemDampener(reportData: {
   }
   return false;
 }
-async function loadData() {
-  const file = fs.readFileSync(path.join(__dirname + '/data.txt'), undefined);
-  return file.toString();
-}
 
 async function parseData(rawData: string): Promise<Reports> {
   const lines = rawData.split('\n');
@@ -59,7 +52,7 @@ async function parseData(rawData: string): Promise<Reports> {
 }
 
 function isReportSafe(
-  report: Report,
+  report: ReportData,
 ): { safe: true } | { safe: false; report: number[] } {
   let lastDiff = 0;
   const errorIndexes = [];

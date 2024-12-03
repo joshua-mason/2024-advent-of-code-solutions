@@ -1,10 +1,20 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { loadData } from '../utils/loadData';
 
-async function loadData() {
-  const file = fs.readFileSync(path.join(__dirname + '/data.txt'), undefined);
-  return file.toString();
+async function day1() {
+  const rawData = await loadData('/data.txt');
+  const data = await parseData(rawData);
+  const sortedData = sortData(data);
+  const totalDistance = sumOfDiffs(sortedData);
+  console.log('Sum of sorted differences:', totalDistance);
+
+  const repeatFrequencies = getRepeatFrequencies(data);
+  const similarityScore = calculateSimilarityScore(repeatFrequencies);
+  console.log('Similarity score: ', similarityScore);
 }
+
+day1();
 
 interface LocationIDs {
   firstList: number[];
@@ -72,17 +82,3 @@ function calculateSimilarityScore(repeatFrequencies: RepeatFrequency[]) {
   }
   return score;
 }
-
-async function main() {
-  const rawData = await loadData();
-  const data = await parseData(rawData);
-  const sortedData = sortData(data);
-  const totalDistance = sumOfDiffs(sortedData);
-  console.log('Sum of sorted differences:', totalDistance);
-
-  const repeatFrequencies = getRepeatFrequencies(data);
-  const similarityScore = calculateSimilarityScore(repeatFrequencies);
-  console.log('Similarity score: ', similarityScore);
-}
-
-main();
