@@ -24,8 +24,8 @@ rust/
 To run a specific day's TypeScript solution:
 
 ```bash
-cd ts/day01
-ts-node index.ts
+cd ts
+yarn ts-node src/day01/index.ts
 ```
 
 ### Rust Solutions
