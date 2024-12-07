@@ -97,11 +97,14 @@ function checkOperatorSequence(
   operatorSequence: Operator[],
   value: number,
 ) {
-  const calculatedValue = equationSequence.reduce((acc, el, idx) => {
+  const calculatedValue = equationSequence.reduce((acc, el, idx, arr) => {
     if (idx === 0) return el;
     const operator = operatorSequence.at(idx - 1);
     if (operator === undefined)
       throw new Error(`No operator found at index ${idx - 1}`);
+    // terrible practice but reduction in duration of 30% 🤷
+    // should refactor to a basic for loop probs
+    if (acc > value) arr.splice(1);
     switch (operator) {
       case Operator.Add:
         return acc + el;
@@ -109,11 +112,9 @@ function checkOperatorSequence(
         return acc * el;
       case Operator.Concat:
         return parseInt(`${acc}${el}`);
-
       default:
         break;
     }
-
     return operator === Operator.Add ? acc + el : acc * el;
   }, 0);
 
