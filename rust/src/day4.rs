@@ -27,33 +27,9 @@ pub fn run() {
         count += count_occurrences_in_lines(&reverse(&down_diagonal_strings));
 
         word_search = rotate(&word_search);
-        println!(
-            "{i} Down diagonals: {:?}",
-            count_occurrences_in_lines(&down_diagonal_strings)
-        );
     }
-    println!("Row counts: {}", count_occurrences_in_lines(&word_search));
-    println!(
-        "Reverse row counts: {}",
-        count_occurrences_in_lines(&reverse(&word_search))
-    );
-    println!(
-        "Column counts: {}",
-        count_occurrences_in_lines(&transposed_word_search)
-    );
-    println!(
-        "Reverse column counts: {}",
-        count_occurrences_in_lines(&reverse(&transposed_word_search))
-    );
 
     println!("XMAS count: {}", count)
-}
-
-fn reverse(word_search: &Vec<Vec<char>>) -> Vec<Vec<char>> {
-    word_search
-        .iter()
-        .map(|line| line.iter().rev().map(|&c| c).collect::<Vec<char>>())
-        .collect::<Vec<Vec<char>>>()
 }
 
 fn count_occurrences_in_lines(word_search: &Vec<Vec<char>>) -> usize {
@@ -61,6 +37,13 @@ fn count_occurrences_in_lines(word_search: &Vec<Vec<char>>) -> usize {
         let line = row.iter().collect::<String>();
         acc + count_words(&line, "XMAS")
     })
+}
+
+fn reverse(word_search: &Vec<Vec<char>>) -> Vec<Vec<char>> {
+    word_search
+        .iter()
+        .map(|line| line.iter().rev().copied().collect::<Vec<char>>())
+        .collect::<Vec<Vec<char>>>()
 }
 
 fn parse_data_to_word_search(data: &str) -> Vec<Vec<char>> {
@@ -78,28 +61,27 @@ fn count_words(line: &str, pattern: &str) -> usize {
 
     chars
         .windows(window)
-        .filter(|char_windows| char_windows.iter().collect::<String>() == pattern)
+        .filter(|char_window| char_window == &pattern.chars().collect::<Vec<_>>().as_slice())
         .count()
 }
 
-fn transpose<T>(word_search: &Vec<Vec<T>>) -> Vec<Vec<T>>
+fn transpose<T>(word_search: &[Vec<T>]) -> Vec<Vec<T>>
 where
     T: Copy,
 {
     let line_length = word_search[0].len();
 
     let mut new_word_search: Vec<Vec<T>> = (0..line_length).map(|_| Vec::new()).collect();
-    for outer_idx in 0..line_length {
+    for col_idx in 0..line_length {
         for row in word_search.iter() {
-            let first_element_clone = row[outer_idx].clone();
-            new_word_search[outer_idx].push(first_element_clone);
+            new_word_search[col_idx].push(row[col_idx]);
         }
     }
 
     new_word_search
 }
 
-fn rotate<T>(word_search: &Vec<Vec<T>>) -> Vec<Vec<T>>
+fn rotate<T>(word_search: &[Vec<T>]) -> Vec<Vec<T>>
 where
     T: Copy,
 {
@@ -110,25 +92,25 @@ where
         .collect()
 }
 
-fn extract_diagonal_strings<T>(word_search: &Vec<Vec<T>>) -> Vec<Vec<T>>
+fn extract_diagonal_strings<T>(word_search: &[Vec<T>]) -> Vec<Vec<T>>
 where
     T: Copy + Debug,
 {
     let max_idx = word_search.iter().count();
-    let mut offset = 0;
+    let mut diagonal_offset = 0;
     let mut output = vec![];
 
     word_search.iter().enumerate().for_each(|(row_idx, _)| {
         let mut diagonal: Vec<T> = vec![];
         word_search[0].iter().enumerate().for_each(|(col_idx, _)| {
-            let (x, y) = (row_idx + col_idx, row_idx + col_idx - offset);
-            if x >= max_idx || y >= max_idx {
+            let (diag_row, diag_col) = (row_idx + col_idx, row_idx + col_idx - diagonal_offset);
+            if diag_row >= max_idx || diag_col >= max_idx {
                 return;
             }
-            let value = word_search[x][y];
+            let value = word_search[diag_row][diag_col];
             diagonal.push(value);
         });
-        offset += 1;
+        diagonal_offset += 1;
         output.push(diagonal)
     });
     output
