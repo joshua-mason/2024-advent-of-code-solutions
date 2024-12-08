@@ -95,10 +95,10 @@ function extractDiagonalStrings(rows: string[][]) {
   let offset = 0;
   for (let rowIdx = 0; rowIdx < rows.length; rowIdx++) {
     let diagonalDown: string[] = [];
-    for (let rowOffset = 0; rowOffset < rows[0].length; rowOffset++) {
+    for (let colIdx = 0; colIdx < rows[0].length; colIdx++) {
       const currentRowValue = rows
-        .at(rowIdx + rowOffset)
-        ?.at(rowIdx + rowOffset - offset);
+        .at(rowIdx + colIdx)
+        ?.at(rowIdx + colIdx - offset);
       if (!currentRowValue) {
         break;
       }
