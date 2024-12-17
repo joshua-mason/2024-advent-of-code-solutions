@@ -61,7 +61,8 @@ async function part1() {
 
   fillAllDeadEnds(maze);
 
-  for (let seed = 0; seed < 100000; seed++) {
+  const simulations = 100000;
+  for (let seed = 0; seed < simulations; seed++) {
     const game = simulate(maze, seed);
     // printMap(game.maze);
     // cleanup:
@@ -106,7 +107,9 @@ async function part1() {
   // console.log(groupedMazes);
   Object.entries(groupedMazes).forEach(([score, data]) => {
     // if (parseInt(score) < 7000 || parseInt(score) >= 8000) return;
-    console.log(`score ${score} (${data.count}) ${data.game.completed}`);
+    console.log(
+      `score ${score} (${100 * (data.count / simulations)}) ${data.game.completed}`,
+    );
     // printMap(data.game.maze);
   });
   console.log(new Set(games.filter((g) => g.completed).map((g) => g.score)));
@@ -199,6 +202,7 @@ function simulate(
   let direction = Move.Right;
   for (let index = 0; index < 10000; index++) {
     // if (steps === index) break;
+    counters[reindeerTile.y][reindeerTile.x]++;
     const move = getNextMove(maze, direction);
     // console.log(1, { move });
     if (move === null) break;
@@ -208,6 +212,8 @@ function simulate(
     } else {
       score += 1;
     }
+
+    // if (score > maxScore) break;
     // if (score === 7036) {
     //   console.log(move);
     //   printMap(maze);
@@ -400,17 +406,26 @@ function getNextMove(mutMaze: Maze, direction: Move): Move | null {
 
   //
 
+  if (!anticlockWiseTile || !clockWiseTile || !aheadTile)
+    throw new Error('No tile');
+
   const options = [
-    { tile: anticlockWiseTile, move: anticlockwiseMove },
-    { tile: clockWiseTile, move: clockwiseMove },
-    { tile: aheadTile, move: direction },
+    {
+      tile: anticlockWiseTile,
+      move: anticlockwiseMove,
+      modifier: counters[anticlockWiseTile?.y][anticlockWiseTile?.x],
+    },
+    {
+      tile: clockWiseTile,
+      move: clockwiseMove,
+      modifier: counters[clockWiseTile?.y][clockWiseTile?.x],
+    },
+    {
+      tile: aheadTile,
+      move: direction,
+      modifier: counters[aheadTile?.y][aheadTile?.x],
+    },
   ];
-  // console.log({
-  //   options,
-  //   clockwiseMove,
-  //   anticlockwiseMove,
-  //   direction,
-  // });
 
   const endTile = options.find((t) => t.tile?.tile === TileType.End);
   if (endTile) return endTile.move;
@@ -422,6 +437,12 @@ function getNextMove(mutMaze: Maze, direction: Move): Move | null {
     // console.log({ options });
     return null;
   }
+  emptyOptions.sort((a, b) => a.modifier - b.modifier);
+  if (emptyOptions[0].modifier < emptyOptions[1].modifier) {
+    // console.log(440, emptyOptions[0].modifier, emptyOptions[1].modifier);
+    return emptyOptions[0].move;
+  }
+
   const randomSelect = Math.floor(Math.random() * emptyOptions.length); //(emptyOptions.length);
 
   return emptyOptions[randomSelect].move;
