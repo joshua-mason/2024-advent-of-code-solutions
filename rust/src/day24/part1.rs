@@ -2,9 +2,9 @@ use std::cmp::Ordering;
 
 #[derive(PartialEq, Debug)]
 enum Operator {
-    AND,
-    OR,
-    XOR,
+    And,
+    Or,
+    Xor,
 }
 
 #[derive(PartialEq, Debug)]
@@ -25,8 +25,6 @@ pub fn run() {
     let input_file = read_input_file();
     let (mut held_values, mut gates) = parse_input(&input_file);
 
-    // for each gate, then find the relevant inputs (if they exist)
-    // then process and add to the inputs, remove gate, loop again
     loop {
         println!("total held values: {:?}", held_values.len());
         let (new_held_values, operated, used_gate_index) = process_next_gate(&gates, held_values);
@@ -76,7 +74,6 @@ fn process_next_gate<'a>(
     let mut possible_gate_to_operate: Option<&Gate> = None;
     let mut gate_position = -1;
     for (idx, gate) in gates.iter().enumerate() {
-        // println!("checking gate (out = {:?})", gate.out);
         if held_value_keys.contains(&gate.left) && held_value_keys.contains(&gate.right) {
             possible_gate_to_operate = Some(gate);
             gate_position = idx as i32;
@@ -109,36 +106,10 @@ fn process_next_gate<'a>(
         .nth(*left_held_index)
         .expect("No left value");
 
-    // remove held values
-    // process new value
-    // add new value
-
     let new_held_value: HeldValue =
         process_gate(gate_to_operate, left_held_value, right_held_value);
 
-    // held_values.retain(|held_value| {
-    //     let relevant_gates = gates
-    //         .iter()
-    //         .flat_map(|gate| vec![gate.left, gate.right])
-    //         .collect::<Vec<&str>>();
-    //     held_value.key.contains("z")
-    //         || (held_value.key != gate_to_operate.left && relevant_gates.contains(&held_value.key))
-    //             && (held_value.key != gate_to_operate.right
-    //                 && relevant_gates.contains(&held_value.key))
-    // });
-
     held_values.push(new_held_value);
-    // held_values = held_values
-    // .iter_mut()
-    // .enumerate()
-    // .filter_map(|(idx, held_value)| {
-    //     if &idx != left_held_index || &idx != right_held_index {
-    //         return Some(held_value);
-    //     } else {
-    //         return None;
-    //     }
-    // })
-    // .collect();
 
     (held_values, true, gate_position)
 }
@@ -148,35 +119,14 @@ fn process_gate<'a>(
     left_held_value: &HeldValue<'a>,
     right_held_value: &HeldValue<'a>,
 ) -> HeldValue<'a> {
-    let value: i32;
-    match gate_to_operate.operator {
-        Operator::AND => {
-            if left_held_value.value == 1 && right_held_value.value == 1 {
-                value = 1;
-            } else {
-                value = 0;
-            }
-        }
-        Operator::OR => {
-            if left_held_value.value == 1 || right_held_value.value == 1 {
-                value = 1;
-            } else {
-                value = 0;
-            }
-        }
-        Operator::XOR => {
-            if left_held_value.value == 1 && right_held_value.value == 1
-                || left_held_value.value == 0 && right_held_value.value == 0
-            {
-                value = 0;
-            } else {
-                value = 1;
-            }
-        }
+    let value = match gate_to_operate.operator {
+        Operator::And => left_held_value.value & right_held_value.value,
+        Operator::Or => left_held_value.value | right_held_value.value,
+        Operator::Xor => left_held_value.value ^ right_held_value.value,
     };
     HeldValue {
         key: &gate_to_operate.out,
-        value: value,
+        value,
     }
 }
 
@@ -213,9 +163,9 @@ fn parse_input(input_data: &str) -> (Vec<HeldValue>, Vec<Gate>) {
                 let out = split_line.next().expect("Invalid data");
 
                 let operator = match operator_str {
-                    "AND" => Operator::AND,
-                    "OR" => Operator::OR,
-                    "XOR" => Operator::XOR,
+                    "AND" => Operator::And,
+                    "OR" => Operator::Or,
+                    "XOR" => Operator::Xor,
                     _ => panic!("Invalid data"),
                 };
 
